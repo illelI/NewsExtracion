@@ -1,0 +1,52 @@
+<html>
+        <script>
+      async function sendPreferences() {
+        const sentenceInput = document.getElementById("sentence");
+        const resultDiv = document.getElementById("result");
+
+        const sentence = sentenceInput.value.trim();
+        if (!sentence) {
+          resultDiv.innerHTML = "<p style='color:red'>Proszę wpisać zdanie!</p>";
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:5000/getResult", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sentence: sentence }),
+            mode: "cors"
+          });
+
+          if (!response.ok) {
+            throw new Error("Błąd sieci: " + response.status);
+          }
+
+          const data = await response.json();
+
+          resultDiv.innerHTML = `
+            <p><strong>Kategoria:</strong> ${data.kategoria}</p>
+            <p><strong>Kto :</strong> ${data.kto || "Brak"}</p>
+            <p><strong>Co :</strong> ${data.co || "Brak"}</p>
+            <p><strong>Trigger :</strong> ${data.trigger || "Brak"}</p>
+          `;
+
+        } catch (error) {
+          console.error("Błąd:", error);
+          resultDiv.innerHTML = `<p style='color:red'>Wystąpił błąd podczas wysyłania żądania: ${error.message}</p>`;
+        }
+      }
+    </script>
+  <body>
+    <form id="sentenceForm">
+    <label>
+        Wprowadź zdanie: <input type="text" id="sentence">
+    </label>
+    <button type="button" onclick="sendPreferences()">Wyślij</button>
+</form>
+  <br><br><br>
+  <div id="result"></div>
+    </body>
+</html>
